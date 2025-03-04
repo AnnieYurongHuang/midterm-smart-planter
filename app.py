@@ -15,12 +15,12 @@ load_dotenv()
 # Retrieve API key from environment variables
 API_KEY = os.getenv('GEMINI_API_KEY')
 
-st.session_state['data'] = []
-st.session_state['response'] = ""
+if 'data' not in st.session_state:
+    st.session_state['data'] = []
+if 'response' not in st.session_state:
+    st.session_state['response'] = ""
 tab3, tab1, tab2 = st.tabs(["Plant Status", "Chatbot", "Conditions History"])
 
-# Auto-refresh the Streamlit app every 5 seconds
-count = st_autorefresh(interval=1000)
 # Fetch data from the local server
 def fetch_data():
     try:
@@ -28,7 +28,6 @@ def fetch_data():
         if response.status_code == 200:
             data = response.json()
             st.session_state['data'] = json.loads(data)
-            # print(f"Data fetched successfully {data}")
         else:
             print(f"Failed to fetch data. Status code: {response.status_code}")
     except Exception as e:
@@ -61,23 +60,17 @@ with tab1:
     st.header("Ask About Plant Care")
     query = st.text_input("What is going on with your plant today?")
     if st.button("Submit"):
-        st.session_state['response'] = "Waiting for response..."
-        # Create a prompt from the MQTT message
         prompt = f"Explain: {query}"
-        # Call Gemini API
         response = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}", json={
             "contents": [{
             "parts":[{"text": prompt}]
             }]})
-        # Print response
         response_data = json.loads(response.text)
         text_response = response_data['candidates'][0]['content']['parts'][0]['text']
         print("Gemini Response:", text_response)
         st.session_state['response'] = text_response
-        st.write("Response", text_response, height=150)
-    # else:
-    #     print("Response:", st.session_state['response'])
-    #     st.text_area("Response", st.session_state['response'], height=150)
+    print("Response:", st.session_state['response'])
+    st.text_area("Response", st.session_state['response'], height=150)
 
 with tab2:
     st.header("Historical Data")
@@ -93,10 +86,6 @@ with tab2:
         })
         st.line_chart(stock, x="time", y="humidity")
 
-def update_history(key, value):
-    if key not in st.session_state:
-        st.session_state[key] = []
-    st.session_state[key].append((datetime.datetime.now(), value))
-    print(f"Updated session_state[{key}]")
-    # print(f"session_state[{key}]: {st.session_state[key]}")
+# Auto-refresh the Streamlit app every 10 seconds
+count = st_autorefresh(interval=10000, debounce=True)
 
