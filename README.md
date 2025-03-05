@@ -16,3 +16,38 @@ The development of the Smart Planter has been a rewarding journey that challenge
 
 
 
+# How to set it up
+
+This repository contains the backend code for the Smart Planter system, designed to automate plant care through sensors and intelligent controls. The system uses MQTT for device communication and Streamlit for the user interface, along with an HTTP API to bridge the two.
+
+## System Components
+
+- **Streamlit UI (Client)**: A web interface for user interaction.
+- **DataService.py**: Bridges HTTP requests to MQTT messages.
+- **MQTT Publisher (`pub.py`)**: Handles publishing sensor data from the planter.
+- **Gemini LLM API**: Provides NLP capabilities for understanding user queries.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+- Python 3.8 or later
+- PIP for Python package management
+
+## Installation
+
+Follow these steps to set up the project environment:
+
+1. **Clone the repository**:
+   ```bash
+   git clone [https://github.com/AnnieYurongHuang/midterm-smart-planter.git]
+
+
+2. pip install -r req.txt
+3. Setting up MQTT Broker:
+    You can use a local or cloud-based MQTT broker.
+    For local testing, install and run Mosquitto:
+
+4. Set up necessary environment variables or use a .env to found API keys
+5. Publishing Sensor Data first by typing in terminal $python pub.py
+6. SUing this command $uvicorn data_service:app to start the DataService.py to handle HTTP to MQTT translation --reload
+7. Run Streamlit using $ streamlit run app.py
